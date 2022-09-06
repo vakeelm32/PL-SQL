@@ -36,6 +36,7 @@ BEGIN
 ----------------==================================---------------
 ----------------USING BOOLEAN DATA TYPE in PL/SQL----------------
 ----------------==================================---------------
+
 DECLARE
     v_boolean boolean := true;
 BEGIN
@@ -44,6 +45,7 @@ END;
 ----------------==================================---------------
 Using %Type Attribute (Code Samples)
 ---------------------%TYPE ATTRIBUTE---------------------
+
 desc employees;
 declare
 V_TYPE employees.JOB_ID%TYPE;
@@ -60,6 +62,7 @@ end;
 ---------------------------------------------------------
 PL/SQL Delimiters and Commenting (Code Samples)
 ------------------DELIMITERS AND COMMENTING------------------
+
 DECLARE
 V_TEXT VARCHAR2(10):= 'PL/SQL';
 BEGIN
@@ -71,8 +74,11 @@ BEGIN
 null;
 END;
 -------------------------------------------------------------
+
 PL SQL Variable Scope (Code Samples)
+
 ------------------------VARIABLE SCOPE--------------------------
+
 begin <<outer>>
 DECLARE
   --v_outer VARCHAR2(50) := 'Outer Variable!';
@@ -92,9 +98,11 @@ BEGIN
   dbms_output.put_line(v_text);
 END;
 END outer;
+
 ----------------------------------------------------------------
 Using Bind Variables (Code Samples)
 --------------------------BIND VARIABLES--------------------------
+
 set serveroutput on;
 set autoprint on;
 /
@@ -128,6 +136,7 @@ select * from employees where employee_id = :var_sql;
 
 What are Control Structures & IF Statements (Code Samples)
 ------------------------------IF STATEMENTS--------------------------------
+
 set serveroutput on;
 declare
 v_number number := 30;
@@ -142,7 +151,9 @@ begin
     dbms_output.put_line('I am equal or greater than 30');
   end if;
 end;
+
 ---------------------------------------------------------------------------
+
 declare
 v_number number := 5;
 v_name varchar2(30) := 'Adam';
@@ -162,9 +173,11 @@ begin
     end if;
   end if;
 end;
+
 ---------------------------------------------------------------------------
 Case Expressions (Code Samples)
 ----------------------------CASE EXPRESSIONS--------------------------------
+
 declare
   v_job_code varchar2(10) := 'SA_MAN';
   v_salary_increase number;
@@ -176,7 +189,9 @@ begin
   end;
   dbms_output.put_line('Your salary increase is : '|| v_salary_increase);
 end;
+
 -------------------------SEARCHED CASE EXPRESSION----------------------------
+
 declare
   v_job_code varchar2(10) := 'IT_PROG';
   v_department varchar2(10) := 'IT';
@@ -189,7 +204,9 @@ begin
   end;
   dbms_output.put_line('Your salary increase is : '|| v_salary_increase);
 end;
+
 ---------------------------CASE STATEMENTS------------------------------------
+
 declare
   v_job_code varchar2(10) := 'IT_PROG';
   v_department varchar2(10) := 'IT';
@@ -207,9 +224,11 @@ begin
       dbms_output.put_line('The salary increase for this job code is : '|| v_salary_increase);
   end CASE;
 end;
+
 -------------------------------------------------------------------------------
 Basic Loops (Code Samples)
 -------------------------BASIC LOOPS--------------------------
+
 declare
 v_counter number(2) := 1;
 begin
@@ -223,9 +242,12 @@ begin
     exit when v_counter > 10;
   end loop;
 end;
+
 --------------------------------------------------------------
 While Loops (Code Samples)
+
 ------------------------------WHILE LOOPS-------------------------------
+
 declare
 v_counter number(2) := 1;
 begin
@@ -235,8 +257,10 @@ begin
    -- exit when v_counter > 3;
   end loop;
 end;
+
 -------------------------------------------------------------------------
 For Loops (Code Samples)
+
 -----------------------------FOR LOOPS-----------------------------
 begin
   for i in REVERSE 1..3 loop
@@ -246,6 +270,7 @@ end;
 -------------------------------------------------------------------
 Nested Loops & Loop Labeling (Code Samples)
 -------------------------------NESTED LOOPS-----------------------------------
+
 declare
  v_inner number := 1;
 begin
@@ -259,7 +284,9 @@ begin
     end loop;
  end loop;
 end;
+
 -------------------------NESTED LOOPS WITH LABELS------------------------------
+
 declare
  v_inner number := 1;
 begin
@@ -276,9 +303,12 @@ begin
     end loop inner_loop;
  end loop outer_loop;
 end;
+
 --------------------------------------------------------------------------------
+
 Continue Statement (Code Samples)
 ----------------------------CONTINUE STATEMENT----------------------------------
+
 declare
  v_inner number := 1;
 begin
@@ -293,6 +323,7 @@ begin
  end loop;
 end;
 ---------------------------------------------------------------------------------
+
 declare
  v_inner number := 1;
 begin
@@ -309,8 +340,10 @@ begin
  end loop outer_loop;
 end;
 ----------------------------------------------------------------------------------
+
 GOTO Statement (Code Samples)
 ------------------------------GOTO STATEMENT----------------------------------
+
 DECLARE
   v_searched_number NUMBER := 22;
   v_is_prime boolean := true;
@@ -329,6 +362,7 @@ BEGIN
   dbms_output.put_line('Check complete..');
 END;
 -------------------------------------------------------------------------------
+
 DECLARE
   v_searched_number NUMBER := 32457;
   v_is_prime boolean := true;
@@ -370,6 +404,7 @@ begin
   close c_emps;
 end;
 --------------- cursor with join example
+
 declare
   cursor c_emps is select first_name,last_name, department_name from employees
                       join departments using (department_id)
@@ -385,7 +420,10 @@ begin
 end;
 
 -----------------------------------------------
+
 Cursors with Records (Code Samples)
+-----------------------------------------------
+
 declare
   type r_emp is record (  v_first_name employees.first_name%type,
                            v_last_name employees.last_name%type);
@@ -584,7 +622,8 @@ begin
 end;
 ---------------cursors with multiple parameters
 declare
-  cursor c_emps (p_dept_id number , p_job_id varchar2) is select first_name,last_name,job_id,department_name 
+  cursor c_emps (p_dept_id number , p_job_id varchar2) 
+					is select first_name,last_name,job_id,department_name 
                     from employees join departments using (department_id)
                     where department_id = p_dept_id
                     and job_id = p_job_id;
@@ -895,4 +934,323 @@ begin
     end loop;
   close rc_emps;
 end;
----------------------------------------------------------------------------
+-----------------------------Functions & Procedures----------------------------------------------
+What are Functions & Procedures and Why We Use (Code Samples)
+-----------------An anonymous block example
+declare
+    cursor c_emps is select * from employees_copy for update;
+    v_salary_increase number:= 1.10;
+    v_old_salary number;
+begin
+    for r_emp in c_emps loop
+      v_old_salary := r_emp.salary;
+      r_emp.salary := r_emp.salary*v_salary_increase + r_emp.salary * nvl(r_emp.commission_pct,0);
+      update employees_copy set row = r_emp where current of c_emps;
+      dbms_output.put_line('The salary of : '|| r_emp.employee_id 
+                            || ' is increased from '||v_old_salary||' to '||r_emp.salary);
+    end loop;
+end;
+-----------------An anonymous block example 2 
+declare
+    cursor c_emps is select * from employees_copy for update;
+    v_salary_increase number:= 1.10;
+    v_old_salary number;
+    v_new_salary number;
+    v_salary_max_limit pls_integer := 20000;
+begin
+    for r_emp in c_emps loop
+      v_old_salary := r_emp.salary;
+      --check salary area
+      v_new_salary := r_emp.salary*v_salary_increase + r_emp.salary * nvl(r_emp.commission_pct,0);
+      if v_new_salary > v_salary_max_limit then
+       RAISE_APPLICATION_ERROR(-20000, 'The new salary of '||r_emp.first_name|| ' cannot be higher than '
+	   || v_salary_max_limit);
+      end if;
+      r_emp.salary := r_emp.salary*v_salary_increase + r_emp.salary * nvl(r_emp.commission_pct,0);
+      ----------
+      update employees_copy set row = r_emp where current of c_emps;
+      dbms_output.put_line('The salary of : '|| r_emp.employee_id 
+                            || ' is increased from '||v_old_salary||' to '||r_emp.salary);
+    end loop;
+end;
+--------------------------------Creating and Using Stored Procedures---------------------------------
+
+Creating and Using Stored Procedures (Code Samples)
+----------------- Creating a procedure
+create procedure increase_salaries as
+    cursor c_emps is select * from employees_copy for update;
+    v_salary_increase number := 1.10;
+    v_old_salary number;
+begin
+    for r_emp in c_emps loop
+      v_old_salary := r_emp.salary;
+      r_emp.salary := r_emp.salary * v_salary_increase + r_emp.salary * nvl(r_emp.commission_pct,0);
+      update employees_copy set row = r_emp where current of c_emps;
+      dbms_output.put_line('The salary of : '|| r_emp.employee_id 
+                            || ' is increased from '||v_old_salary||' to '||r_emp.salary);
+    end loop;
+end;
+----------------- Multiple procedure usage
+begin
+  dbms_output.put_line('Increasing the salaries!...');
+  INCREASE_SALARIES;
+  INCREASE_SALARIES;
+  INCREASE_SALARIES;
+  INCREASE_SALARIES;
+  dbms_output.put_line('All the salaries are successfully increased!...');
+end;
+----------------- Different procedures in one block
+begin
+  dbms_output.put_line('Increasing the salaries!...');
+  INCREASE_SALARIES;
+  new_line;
+  INCREASE_SALARIES;
+  new_line;
+  INCREASE_SALARIES;
+  new_line;
+  INCREASE_SALARIES;
+  dbms_output.put_line('All the salaries are successfully increased!...');
+end;
+-----------------Creating a procedure to ease the dbms_output.put_line procedure 
+create procedure new_line as
+begin
+  dbms_output.put_line('------------------------------------------');
+end;
+-----------------Modifying the procedure with using the OR REPLACE command.
+create or replace procedure increase_salaries as
+    cursor c_emps is select * from employees_copy for update;
+    v_salary_increase number := 1.10;
+    v_old_salary number;
+begin
+    for r_emp in c_emps loop
+      v_old_salary := r_emp.salary;
+      r_emp.salary := r_emp.salary * v_salary_increase + r_emp.salary * nvl(r_emp.commission_pct,0);
+      update employees_copy set row = r_emp where current of c_emps;
+      dbms_output.put_line('The salary of : '|| r_emp.employee_id 
+                            || ' is increased from '||v_old_salary||' to '||r_emp.salary);
+    end loop;
+    dbms_output.put_line('Procedure finished executing!');
+end
+-------------------------------------IN & OUT Parameters--------------------------------------------------
+Using IN & OUT Parameters (Code Samples)
+-----------------Creating a procedure with the IN parameters
+create or replace procedure increase_salaries (v_salary_increase in number, v_department_id pls_integer) as
+    cursor c_emps is select * from employees_copy where department_id = v_department_id for update;
+    v_old_salary number;
+begin
+    for r_emp in c_emps loop
+      v_old_salary := r_emp.salary;
+      r_emp.salary := r_emp.salary * v_salary_increase + r_emp.salary * nvl(r_emp.commission_pct,0);
+      update employees_copy set row = r_emp where current of c_emps;
+      dbms_output.put_line('The salary of : '|| r_emp.employee_id 
+                            || ' is increased from '||v_old_salary||' to '||r_emp.salary);
+    end loop;
+    dbms_output.put_line('Procedure finished executing!');
+end;
+----------------- Creating a procedure with the OUT parameters
+create or replace procedure increase_salaries 
+    (v_salary_increase in out number, v_department_id pls_integer, v_affected_employee_count out number) as
+    cursor c_emps is select * from employees_copy where department_id = v_department_id for update;
+    v_old_salary number;
+    v_sal_inc number := 0;
+begin
+    v_affected_employee_count := 0;
+    for r_emp in c_emps loop
+      v_old_salary := r_emp.salary;
+      r_emp.salary := r_emp.salary * v_salary_increase + r_emp.salary * nvl(r_emp.commission_pct,0);
+      update employees_copy set row = r_emp where current of c_emps;
+      dbms_output.put_line('The salary of : '|| r_emp.employee_id 
+                            || ' is increased from '||v_old_salary||' to '||r_emp.salary);
+      v_affected_employee_count := v_affected_employee_count + 1;
+      v_sal_inc := v_sal_inc + v_salary_increase + nvl(r_emp.commission_pct,0);
+    end loop;
+    v_salary_increase := v_sal_inc / v_affected_employee_count;
+    dbms_output.put_line('Procedure finished executing!');
+end;
+-----------------Another example of creating a procedure with the IN parameter 
+CREATE OR REPLACE PROCEDURE PRINT(TEXT IN VARCHAR2) IS
+BEGIN
+  DBMS_OUTPUT.PUT_LINE(TEXT);
+END;
+-----------------Using the procedures that has the IN parameters 
+begin
+ PRINT('SALARY INCREASE STARTED!..');
+ INCREASE_SALARIES(1.15,90);
+ PRINT('SALARY INCREASE FINISHED!..');
+end;
+-----------------Using the procedure that has OUT parameters 
+declare
+  v_sal_inc number := 1.2;
+  v_aff_emp_count number;
+begin
+ PRINT('SALARY INCREASE STARTED!..');
+ INCREASE_SALARIES(v_sal_inc,80,v_aff_emp_count);
+ PRINT('The affected employee count is : '|| v_aff_emp_count);
+ PRINT('The average salary increase is : '|| v_sal_inc || ' percent!..');
+ PRINT('SALARY INCREASE FINISHED!..');
+end;
+-------------------------------Named & Mixed Notations -----------------------------------
+Named & Mixed Notations and Default Option (Code Samples)
+----------------- A standard procedure creation with a default value
+create or replace PROCEDURE PRINT(TEXT IN VARCHAR2 := 'This is the print function!.') IS
+BEGIN
+  DBMS_OUTPUT.PUT_LINE(TEXT);
+END;
+-----------------Executing a procedure without any parameter. It runs because it has a default value.
+exec print();
+-----------------Running a procedure with null value will not use the default value 
+exec print(null);
+-----------------Procedure creation of a default value usage
+create or replace procedure add_job(job_id pls_integer, job_title varchar2, 
+                                    min_salary number default 1000, max_salary number default null) is
+begin
+  insert into jobs values (job_id,job_title,min_salary,max_salary);
+  print('The job : '|| job_title || ' is inserted!..');
+end;
+-----------------A standard run of the procedure
+exec ADD_JOB('IT_DIR','IT Director',5000,20000); 
+-----------------Running a procedure with using the default values
+exec ADD_JOB('IT_DIR2','IT Director',5000); 
+-----------------Running a procedure with the named notation
+exec ADD_JOB('IT_DIR5','IT Director',max_salary=>10000); 
+-----------------Running a procedure with the named notation example 2
+exec ADD_JOB(job_title=>'IT Director',job_id=>'IT_DIR7',max_salary=>10000 , min_salary=>500);
+
+----------------------------------Creating and Using PL/SQL Functions--------------------------------------
+
+Creating and Using PL/SQL Functions (Code Samples)
+CREATE OR REPLACE FUNCTION get_avg_sal (p_dept_id departments.department_id%type) RETURN number AS 
+v_avg_sal number;
+BEGIN
+  select avg(salary) into v_avg_sal from employees where department_id = p_dept_id;
+  RETURN v_avg_sal;
+END get_avg_sal;
+----------------- using a function in begin-end block
+declare
+  v_avg_salary number;
+begin
+  v_avg_salary := get_avg_sal(50);
+  dbms_output.put_line(v_avg_salary);
+end;
+----------------- using functions in a select clause
+select employee_id,first_name,salary,department_id,get_avg_sal(department_id) avg_sal from employees;
+----------------- using functions in group by, order by, where clauses 
+select get_avg_sal(department_id) from employees
+where salary > get_avg_sal(department_id)
+group by get_avg_sal(department_id) 
+order by get_avg_sal(department_id);
+----------------- dropping a function
+drop function get_avg_sal;
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+Using the UTL_FILE Package (Code Samples)
+--------------------CREATE DIRECTORY------------------------------------
+CREATE DIRECTORY test_dir AS 'C:\My Folder';
+/
+-------------------GET ALL THE EXISTING DIRECTORIES--------------------
+SELECT * FROM all_directories;
+/
+-------------------READ FROM A FILE------------------------------------
+SET SERVEROUTPUT ON;
+DECLARE
+    v_file UTL_FILE.FILE_TYPE;
+    v_line VARCHAR2(32767);
+BEGIN
+    v_file := UTL_FILE.FOPEN('TEST_DIR', 'temp file.txt', 'R', 32767);
+    LOOP
+        UTL_FILE.GET_LINE(v_file, v_line);
+        dbms_output.put_line (v_line);
+    END LOOP;
+    EXCEPTION
+        WHEN no_data_found THEN
+            dbms_output.put_line('The whole file is read!');
+            UTL_FILE.FCLOSE(v_file);
+END;
+/
+-------------------GRANT OR REVOKE READ-WRITE PRIVILEGES---------------
+GRANT READ, WRITE ON DIRECTORY test_dir TO hr;
+REVOKE READ, WRITE ON DIRECTORY test_dir FROM hr;
+/
+-------------------WRITE TO A FILE USING PUT_LINE PROCEDURE-------------
+DECLARE
+    v_file UTL_FILE.FILE_TYPE;
+BEGIN
+    v_file := UTL_FILE.FOPEN('TEST_DIR', 'temp file.txt', 'w', 32767);
+    FOR r_emp IN (select * from employees) LOOP
+        UTL_FILE.PUT_LINE(v_file, r_emp.first_name||' '||r_emp.last_name);
+    END LOOP;
+    UTL_FILE.FCLOSE(v_file);
+END;
+/
+-------------------WRITE TO A FILE USING PUT AND NEW_LINE---------------
+DECLARE
+    v_file UTL_FILE.FILE_TYPE;
+BEGIN
+    v_file := UTL_FILE.FOPEN('TEST_DIR', 'temp file.txt', 'w', 32767);
+    FOR r_emp IN (select * from employees) LOOP
+        UTL_FILE.PUT(v_file, r_emp.first_name||' '||r_emp.last_name);
+        UTL_FILE.NEW_LINE(v_file);
+    END LOOP;
+    UTL_FILE.FCLOSE(v_file);
+END;
+/
+-------------------WRITE TO A FILE USING PUTF---------------------------
+DECLARE
+    v_file UTL_FILE.FILE_TYPE;
+BEGIN
+    v_file := UTL_FILE.FOPEN('TEST_DIR', 'temp file.txt', 'w', 32767);
+    FOR r_emp IN (select * from employees) LOOP
+        UTL_FILE.PUTF(v_file, '--> %s %s',r_emp.first_name,r_emp.last_name);
+        --UTL_FILE.NEW_LINE(v_file);
+        --UTL_FILE.PUTF(v_file, '--> %s %s\n',r_emp.first_name,r_emp.last_name);
+    END LOOP;
+    UTL_FILE.FCLOSE(v_file);
+END;
+/
+-------------------USING FFLUSH TO WRITE IMMEDIATELY-------------------
+DECLARE
+    v_file UTL_FILE.FILE_TYPE;
+BEGIN
+    v_file := UTL_FILE.FOPEN('TEST_DIR', 'temp file.txt', 'w', 32767);
+    FOR r_emp IN (select * from employees) LOOP
+        UTL_FILE.PUT_LINE(v_file,r_emp.first_name||' '||r_emp.last_name);
+        --UTL_FILE.FFLUSH(v_file);
+        --UTL_FILE.PUT_LINE(v_file,r_emp.first_name||' '||r_emp.last_name,true);
+        DBMS_SESSION.SLEEP(1);
+    END LOOP;
+    UTL_FILE.FCLOSE(v_file);
+END;
+/
+-------------------CHECK FILE ATTRIBUTES-----------------------------
+DECLARE
+    v_fexists       BOOLEAN;
+    v_file_length   NUMBER;
+    v_block_size    BINARY_INTEGER;
+BEGIN
+    UTL_FILE.FGETATTR('TEST_DIR','temp file.txt',v_fexists,v_file_length,v_block_size);
+    IF v_fexists THEN
+        DBMS_OUTPUT.PUT_LINE('The file exists');
+        DBMS_OUTPUT.PUT_LINE('Its length is     :'||v_file_length);
+        DBMS_OUTPUT.PUT_LINE('Its block size is :'||v_block_size);
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('The file does not exist!');
+    END IF;
+END;
+/
+-------------------COPY THE FILE---------------------------------------
+EXECUTE UTL_FILE.FCOPY('TEST_DIR','temp file.txt','TEST_DIR','temp file copy.txt');
+/
+-------------------COPY THE FILE EX2-----------------------------------
+EXECUTE UTL_FILE.FCOPY('TEST_DIR','temp file.txt','TEST_DIR','temp file copy2.txt',1,5);
+/
+-------------------RENAME THE FILE-------------------------------------
+EXECUTE UTL_FILE.FRENAME('TEST_DIR','temp file copy2.txt','TEST_DIR','temp file renamed.txt');
+/
+-------------------REMOVE THE FILE-------------------------------------
+EXECUTE UTL_FILE.FREMOVE('TEST_DIR','temp file renamed.txt');
+EXECUTE UTL_FILE.FREMOVE('TEST_DIR','temp file copy.txt');
+EXECUTE UTL_FILE.FREMOVE('TEST_DIR','temp file.txt');
+/
+-------------------DROP THE DIRECTORY-----------------------------------
+DROP DIRECTORY test_dir;
+-----------------------------------------------------------------------------
